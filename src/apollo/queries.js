@@ -191,3 +191,19 @@ export const UNISWAP_CHART_QUERY = gql`
     }
   }
 `
+
+export const getQueryC = gql`
+  query getQueryC($date: Int!) {
+    exchanges(where:{totalTxsCount_lt:12, totalTxsCount_gt:9}, first: 1000, orderBy: totalTxsCount,  orderDirection:asc ) {
+      id
+      tokenAddress
+      tokenSymbol
+      tokenName
+      ethBalance
+      totalTxsCount
+    }
+
+  }
+`
+
+

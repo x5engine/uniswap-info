@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import utc from 'dayjs/plugin/utc'
 import { client } from '../apollo/client'
-import { TICKER_QUERY, TICKER_24HOUR_QUERY } from '../apollo/queries'
+import { TICKER_QUERY, TICKER_24HOUR_QUERY, DIRECTORY_QUERY } from '../apollo/queries'
 import { get2DayPercentFormatted, getPercentFormatted } from '../helpers'
 
 export function useExchangeSpecificData(exchangeAddress) {
@@ -17,6 +17,14 @@ export function useExchangeSpecificData(exchangeAddress) {
       let data48HoursAgo = {}
       let data = {}
       let newExchangeData = {}
+
+      let xresult = await client.query({
+        query: DIRECTORY_QUERY,
+        variables: {
+        }
+      })
+      console.log(xresult);
+      
       // get the current state of the exchange
       const result = await client.query({
         query: TICKER_QUERY,

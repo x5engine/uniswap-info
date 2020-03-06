@@ -170,6 +170,31 @@ function OverviewList({ currencyUnit }) {
 
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQUIDITY)
 
+  async function getNextBatch(limit) {
+    console.log("getNextBatch", limit);
+    
+      setLoading(true)
+      let gettingExchanges = true
+      let newExchanges = []
+      let skip = limit
+        let result = await client.query({
+          query: OVERVIEW_PAGE_QUERY,
+          variables: {
+            first: 100,
+            skip: skip
+          },
+          fetchPolicy: 'cache-first'
+        })
+        if (result) {
+          newExchanges = exchanges.concat(result.data.exchanges)
+        }
+        console.log(result, newExchanges);
+        
+      setMaxPage(Math.floor(newExchanges.length / TXS_PER_PAGE))
+      SetFilteredTxs(newExchanges)
+      setExchanges(newExchanges)
+  }
+
   function getPercentChangeColor(change) {
     if (change === 0) {
       return <span>{change + ' %'}</span>
@@ -341,6 +366,15 @@ function OverviewList({ currencyUnit }) {
     get24HrVol()
   }, [exchanges])
 
+  function changePage(page) {
+    const limit = page*10;
+    console.log('change page', limit, page, exchanges.length);
+    
+    if (limit > exchanges.length){
+      getNextBatch(limit)
+    }
+    setPage(page)
+  }
   const belowMedium = useMedia('(max-width: 64em)')
 
   const belowSmall = useMedia('(max-width: 40em)')
@@ -538,18 +572,18 @@ function OverviewList({ currencyUnit }) {
       <PageButtons>
         <div
           onClick={e => {
-            setPage(page === 1 ? page : page - 1)
+            changePage(page === 1 ? page : page - 1)
           }}
         >
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        {'Page ' + page + ' of ' + maxPage}
+        {'Page ' + page}
         <div
           onClick={e => {
-            setPage(page === maxPage ? page : page + 1)
+            changePage(page + 1)
           }}
         >
-          <Arrow faded={page === maxPage ? true : false}>→</Arrow>
+          <Arrow faded={false}>→</Arrow>
         </div>
         <i data-feather="circle"></i>
       </PageButtons>
